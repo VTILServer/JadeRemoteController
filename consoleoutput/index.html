@@ -1,0 +1,67 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+        <link rel="manifest" href="/resources/site.webmanifest">
+        <link rel="mask-icon" href="/resources/safari-pinned-tab.svg" color="#032a35">
+        <title>Jade's Admin Discord Output</title>
+        <style>
+            body{
+                background-color: rgb(22, 22, 29);
+                color: rgb(0, 170, 255);
+                font-family: 'Inconsolata', monospace;
+                padding-left: 50px;
+                padding-right:5px;
+            }
+            #LeftBar{
+                background-color: rgb(29, 29, 29);
+                width:50px;
+                position: fixed;
+                height:100vh;
+                top:0;
+                left:0;
+            }
+            #List{
+                position: relative;
+                font-size: 15px;
+                left:-50px;
+            }
+            .Entry{
+                width:100%;
+            }
+            .Content{
+                position: relative;
+                white-space: pre-wrap;
+                left:50px;
+            }
+            .LineNumber{
+                position: absolute;
+                width:40px;
+                text-align: right;
+            }
+            @media only screen and (max-width: 450px) {
+                .LineNumber{
+                    padding-right:5px;
+                }
+                #List{
+                    font-size:12px;
+                }
+                h1{
+                    font-size:1em;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>
+            Jade's Admin Discord Output. Lol revitalized.
+        </h1>
+        <div id="LeftBar"></div>
+        <div id="List">
+            ENTRY_SPOT_JADE
+        </div>
+    </body>
+</html>

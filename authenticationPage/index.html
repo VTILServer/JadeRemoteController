@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+        <link rel="manifest" href="/resources/site.webmanifest">
+        <link rel="mask-icon" href="/resources/safari-pinned-tab.svg" color="#032a35">
+        <title>Discord OAuth Login</title>
+        <style>
+            body{
+                font-family: "Source Sans Pro", sans-serif;
+                background: url(/resources/Background.JPG) rgb(10, 10, 29) ;
+                background-position-y: 100vh;
+                position: fixed;
+                overflow: none;
+            }
+            /**#BackgroundImage{
+                background-image: url("/resources/mountains.jpg");
+                background-size: cover;
+                filter: blur(3px);
+                width:100%;
+                height: 100vh;
+                position: fixed;
+                top: 0px;
+            }**/
+            #LeftBar{
+                width:500px;
+                background-color: rgb(29, 29, 29);
+                text-align: center;
+                color: rgb(0, 170, 255);
+                font-size: 40px;
+                padding-top: 25px;
+                height:100vh;
+                position: fixed;
+                left: 0px;
+                top: 0px;
+            }
+            #Status{
+                font-size: 30px;
+                padding-top: 25px;
+            }
+            #Verify{
+                background-color: rgb(0, 170, 255);
+                border-radius: 10px;
+                bottom:100px;
+                font-size: 25px;
+                width:350px;
+                color: rgb(29, 29, 29);
+                margin-left: auto;
+                margin-right: auto;
+                cursor: pointer;
+                transition: .1s linear border-radius, box-shadow .1s linear;
+                user-select: none;
+                -webkit-user-select: none;
+                margin-top: 50px;
+            }
+            #Verify:hover,#Verify:active{
+                box-shadow: 0 0 15px 2px black;
+                border-radius: 5px;
+            }
+            #VerifyFrame{
+                width:100%;
+                position: absolute;
+                bottom: 64px;
+            }
+            #Info{
+                font-size: 20px;
+            }
+            #ScrollInfo{
+                margin-top: 15px;
+                font-size:25px;
+                padding-left: 15px;
+                padding-right:15px;
+                overflow-y: auto;
+            }
+            @media only screen and (max-width: 450px) {
+                #LeftBar{
+                   width:100%;
+                }
+                #VerifyFrame{
+                    bottom: 110px;
+                }
+                #Verify{
+                    font-size: 20px;
+                }
+                #Status{
+                    font-size: 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="LeftBar">
+            Jade's Admin System
+            <div id="Status">
+                Hmm... do I recognize you? 🤔
+            </div>
+            <div id="ScrollInfo">
+                Scroll down to login
+                <div id="Info">
+                    Oh by the way!<br><br> When you login, your IP and along with your login session cookie will be logged. This is to verify you when you login the next time around. This is protect our admin system from unauthorized users that use stolen login session cookies. Your IP will not be disclosed to staff members. The only people to have access to your authentication data are server administrators (Vakepexe, TheJades).<br><br>Concerns about the server running the admin system? Contact Vakepexe!<br><br>Concerns about the admin system? Contact TheJades!<br><br>Concerns about the operations of Jade Inc and the Jade Admin System? Contact zachandmom!<br><br>If you absolutely don't trust us or hate us, use our Discord Bot!<br><br>By clicking "Login in Jade's Admin System using Discord", you agree that your IP will be logged for authentication purposes.
+                </div>
+                <div id="Verify">Login into Jade's Admin System using Discord</div>
+            </div>
+            <div id="VerifyFrame">
+            </div>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script>
+        const scrollInfo = document.getElementById("ScrollInfo");
+        const resize = function(){
+            scrollInfo.style.height = window.innerHeight - 200 + "px";
+        };
+        resize();
+        scrollInfo.scroll
+        window.addEventListener("resize", resize);
+        document.getElementById("Verify").addEventListener("click",function(){
+            window.location.assign("https://discord.com/api/oauth2/authorize?client_id=722207625336586300&redirect_uri=JADE_REDIREC_URL&response_type=code&scope=identify");
+        })
+    </script>
+</html>

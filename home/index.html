@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+        <link rel="manifest" href="/resources/site.webmanifest">
+        <link rel="mask-icon" href="/resources/safari-pinned-tab.svg" color="#032a35">
+        <meta name="msapplication-TileColor" content="#010306">
+        <meta name="theme-color" content="#030618">
+        <title>
+            Jade Inc
+        </title>
+        <style>
+            body{
+                font-family: "Source Sans Pro", sans-serif;
+                background: url(/resources/Background.JPG) rgb(20, 20, 29);
+                background-position-y:100vh;
+                background-size:cover;
+            }
+            #Buttons{
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width:fit-content;
+            }
+            .Button{
+                cursor: pointer;
+                border-radius: 35px;
+                transition: .1s linear border-radius, box-shadow .1s linear;
+                width: 200px;
+                display: block;
+                float:left;
+                margin-left: 5px;
+                margin-right: 5px;
+                position:relative;
+                top: 50vh;
+                margin-top: -100px;
+            }
+            .Button:hover{
+                box-shadow: 0 0 15px 2px black;
+                border-radius: 30px;
+            }
+            #TopBar{
+                background-color: rgb(29, 29, 29);
+                height: 50px;
+                width:100%;
+                position: fixed;
+                top:0px;
+                left:0px;
+                color: rgb(0, 170, 255);
+                font-size: 40px;
+                text-align: center;
+            }
+            @media only screen and (max-width: 420px) {
+                .Button{
+                    width:150px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="TopBar">Jade's Admin System</div>
+        <div id="Buttons">
+            <img id="RemoteConsole" class="Button" title="Connect Jade Servers: Interact with the admin system with many more options, connect and remote control servers." src="/resources/JadeRemoteControl.png" onclick="document.location.assign('/console')"> 
+            <img id="ProfilePage" class="Button" title="Manage JadeProfiles: Make changes to their bans, add notes, remove discord verification and many more." src="/resources/Jade'sProfileManager.png" onclick="document.location.assign('/profilePage')"> 
+        </div>
+    </body>
+</html>

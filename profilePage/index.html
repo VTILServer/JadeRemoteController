@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+        <link rel="manifest" href="/resources/site.webmanifest">
+        <link rel="mask-icon" href="/resources/safari-pinned-tab.svg" color="#032a35">
+        <title>Jade's Profile Viewer</title> 
+        <style>
+            body{
+                font-family: "Source Sans Pro", sans-serif;
+                background: url(/resources/Background.JPG) rgb(20, 20, 29);
+                background-size:cover;
+                overflow-x: none;
+                overflow-y: auto;
+            }
+            #MidSpace{
+                width: 75%;
+                padding-left: 50px;
+                padding-right: 50px;
+                background-color: rgb(29, 29, 29);
+                position:absolute;
+                margin-left:-50px;
+                left: 12.5%;
+                top:0px;
+                height:fit-content;
+            }
+            #AvatarIcon{
+                width:150px;
+                position:relative;
+                z-index: 1;
+                left: 50%;
+                margin-left: -75px;
+                border-radius: 75px;
+                margin-top: 50px;
+                background: rgb(29, 29, 29);
+                border: 5px solid rgb(20, 20, 29);
+            }
+            #DiscordAvatarIcon{
+                width:75px;
+                position: relative;
+                z-index: 2;
+                left: 52%;
+                margin-left: -75px;
+                border-radius: 75px;
+                margin-top: 50px;
+                background: rgb(29, 29, 29);
+                border: 5px solid rgb(20, 20, 29);
+                display: none;
+            }
+            #Nickname{
+                font-size: large;
+                color: white;
+                font-size: 30px;
+                text-align: center;
+                position: -webkit-sticky;
+                position: sticky;
+                height:80px;
+                overflow: hidden;
+                width:100%;
+                top: 0;
+                z-index: 5;
+                background-color:rgb(29, 29, 29)
+            }
+            .EnterBox{
+                margin-top: 10px;
+                border-top: 2px solid white;
+                width:100%;
+                height: fit-content;
+                font-size: 25px;
+                color: white;
+                padding-top: 12px;
+                padding-bottom: 13px;
+            }
+            .PropertyValue{
+                border-radius: 5px;
+                margin-top: 10px;
+                border: unset;
+                padding-left: 0;
+                padding-right: 0;
+                width:100%;
+                color:white;
+                outline: none;
+                transition: box-shadow .1s linear;
+                cursor: pointer;
+                resize:vertical;
+                font-family: "Source Sans Pro", sans-serif;
+                font-size: 20px;
+                margin:0;
+            }
+            .PropertyValue:focus{
+                box-shadow: 0 0 10px 2px black;
+                cursor: text;
+            }
+            .DropdownValue{
+                border-radius: 5px;
+                transition: box-shadow .1s linear;
+                font-family: "Source Sans Pro", sans-serif;
+                font-size: 20px;
+                background-color: rgba(0, 0, 0, 0);
+                display: inline-block;
+                color: darkgray;
+                margin:0;
+                user-select: none;
+                -webkit-user-select: none;
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+            .Button{
+                border-radius: 5px;
+                transition: box-shadow .1s linear;
+                font-family: "Source Sans Pro", sans-serif;
+                font-size: 20px;
+                background-color: rgba(0, 0, 0, 0);
+                display: inline-block;
+                color: white;
+                margin:0;
+                user-select: none;
+                -webkit-user-select: none;
+                cursor: pointer;
+                padding-top: 2px;
+                padding-bottom: 2px;
+            }
+            .Button:hover{
+                box-shadow: 0 0 10px 2px black;
+                cursor: pointer;
+            }
+            .DropdownValue:hover{
+                box-shadow: 0 0 10px 2px black;
+                cursor: pointer;
+            }
+            .DropdownValue:active{
+                box-shadow: 0 0 10px 2px black;
+                cursor: pointer;
+            }
+            .DropdownMenu{
+                display: none;
+                margin-top: 5px;
+                position: relative;
+                z-index: 2;
+            }
+            .DropdownValue:hover .DropdownMenu{
+                display: block;
+            }
+            .DropdownValue:active .DropdownMenu{
+                display: block;
+            }
+            .DropdownButton{
+                width: 100%;
+                height: 30px;
+                background: rgb(35, 35, 35);
+                text-align: center;
+                font-size: 20px;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .DropdownButton:hover{
+                background: rgb(40, 40, 40);
+            }
+            .ListScroll{
+                border-radius: 5px;
+                width: 100%;
+                min-height: 100px;
+                background: rgb(35, 35, 35);
+                text-align: center;
+                font-size: 20px;
+                overflow-y: scroll;
+                max-height: 400px;
+                background-color: rgba(0, 0, 0, 0);
+            }
+            .ListValue div{
+                display:inline
+            }
+            .ListValue{
+                width:100%;
+                height: 20px;
+                text-align: left;
+            }
+            .DeleteButton{
+                user-select: none;
+                -webkit-user-select: none;
+                height:10px;
+                cursor: pointer;
+
+            }
+            #Banner{
+                font-size: 15px;
+            }
+            @keyframes loading{
+                from{
+                    background-position: 0px 0px;
+                }
+                from{
+                    background-position: 1000px 0px;
+                }
+            }
+            #Search{
+                cursor: pointer;
+                height: 20px;
+            }
+            #Username{
+                display:inline;
+            }
+            #SearchBar{
+                background:0;
+                border:0;
+                font-size: 30px;
+                height:80px;
+                overflow:visible;
+                color:white;
+                width:0px;
+                margin-left: auto;
+                margin-right:auto;
+                transition: width 0.5s ease-in-out;
+            }
+            #SearchBar:focus{
+                display:inline;
+                outline: none;
+                width:90%;
+            }
+            #TemplateDiscord{
+                display:none;
+            }
+            #TemplateJASAO{
+                display:none;
+            }
+            .PropertyValue,.DropdownValue,.ListScroll,.Button{
+                background-color: rgb(50, 50, 50);
+            }
+            .Loading{
+                animation: loading 1s infinite cubic-bezier(0.14, 0.77, 0.74, 0.47);
+                background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,.1) 50%,rgba(0,0,0,0) 100%);
+                background-size: 1000px auto;
+            }
+            @-webkit-keyframes loading{
+                from{
+                    background-position: 0px 0px;
+                }
+                from{
+                    background-position: 1000px 0px;
+                }
+            }
+            @media only screen and (max-width: 450px) {
+                #MidSpace{
+                    padding-left: 5px;
+                    padding-right: 5px;
+                    width:100%;
+                    margin-left:0;
+                    left:0;
+                }
+                .PropertyValue{
+                    height: 150px;
+                }
+                .ListScroll{
+                    height: 250px;
+                }
+                #SearchBar:focus{
+                    display:inline;
+                    outline: none;
+                    width:80%;
+                }
+            }
+        </style>
+    </head>
+    <body ontouchstart="">
+        <div id="MidSpace">
+            <img id="AvatarIcon" src="https://tr.rbxcdn.com/ce78cb45b2b100acb86411d802e9c017/150/150/AvatarHeadshot/Png">
+            <img id="DiscordAvatarIcon" src="https://tr.rbxcdn.com/ce78cb45b2b100acb86411d802e9c017/150/150/AvatarHeadshot/Png">
+            <div id="Nickname">
+                <img id="Search" src="resources/Search.png">
+                <input type="text" id="SearchBar" rows="1" placeholder="Roblox Username">
+                <div id="Username">
+                    TheJades
+                </div>
+            </div>
+            <div class="EnterBox">
+                Notes:
+                <textarea class="PropertyValue" placeholder="Enter notes" id="Notes"></textarea>
+            </div>
+            <div class="EnterBox" style="padding-bottom: 30px;">
+                Rank:
+                <div class="DropdownValue" id="Ranks" style="width:100%;height:30px;float:left">
+                    <div class="Text">
+                        Rank:
+                    </div>
+                    <div class="DropdownMenu">
+                        <div class=DropdownButton id="Member" roleName="Member">Member</div>
+                        <div class=DropdownButton id="Whitelisted" roleName="Whitelisted">Whitelisted</div>
+                        <div class=DropdownButton id="GuildModerator" roleName="GuildModerator">Guild Moderator</div>
+                        <div class=DropdownButton id="Moderator" roleName="Moderator">Moderator</div>
+                        <div class=DropdownButton id="Administrator" roleName="Administrator">Administrator</div>
+                        <div class=DropdownButton id="Developer" roleName="Developer">Developer</div>
+                        <div class=DropdownButton id="ServerAdministrator" roleName="ServerAdministrator">Server Administrator</div>
+                        <div class=DropdownButton id="VicePresident" roleName="VicePresident">Vice President</div>
+                        <div class=DropdownButton id="President" roleName="President">President</div>
+                    </div>
+                </div>
+            </div>
+            <div class="EnterBox">
+                Ban Data:
+                <textarea class="PropertyValue" placeholder="Enter ban reason: " id="BanReason"></textarea>
+                <textarea class="PropertyValue" placeholder="Enter ban length: " id="BanLength" style="width: 50%;height:30px;position: relative;padding-left: 0px;padding-right: 0px;resize: none;"></textarea>
+                <div class="DropdownValue" style="width: 50%;height:30px;float:right;" id="BanDateTypes">
+                    <div class="Text">
+                        Ban Date Type:
+                    </div>
+                    <div class="DropdownMenu">
+                        <div class=DropdownButton id="BanSecond" dateType="Seconds">seconds(s)</div>
+                        <div class=DropdownButton id="BanMinute" dateType="Minutes">minute(s)</div>
+                        <div class=DropdownButton id="BanHour" dateType="Hours">hour(s)</div>
+                        <div class=DropdownButton id="BanDay" dateType="Days" >day(s)</div>
+                        <div class=DropdownButton id="BanMonth" dateType="Months" >months(s)</div>
+                        <div class=DropdownButton id="BanYear" dateType="Years" >years(s)</div>
+                        <div class=DropdownButton id="BanPerm" dateType="Permanent" >permanent</div>
+                    </div>
+                </div>
+                <div class="Button" id="BanAction" style="width:100%">
+                    Global Ban
+                </div>
+                <div id="Banner">
+                </div>
+            </div>
+            <div class="EnterBox">
+                Discord Verification:
+                <div class="ListScroll" id="DiscordList">
+                    <div class="ListValue" id="TemplateDiscord">
+                        <div class="Username" style="margin-left: 5px;">
+                            thejades#2903
+                        </div>
+                        <div class="DiscordId">
+                            (317118157711998976)
+                        </div>
+                        <img src="resources/Delete.png" class="DeleteButton">
+                    </div>
+                </div>
+                <textarea class="PropertyValue" placeholder="Add a Discord (snowflake): " style="width:50%;resize:none;height:30px;margin-top: 5px;padding-bottom: 0;padding-top: 0;"id="DiscordSnowflakeEntry"></textarea>
+                <div class="Button" id="AddDiscord" style="width:50%;float:right;margin-top: 5px">
+                   Add Discord Profile
+                </div>
+            </div>
+            <div class="EnterBox">
+                JASAO Records (ProxyId):
+                <div class="ListScroll" id="JASAORecords">
+                    <div class="ListValue" id="TemplateJASAO">
+                        <div class="Offense" style="margin-left: 5px;">
+                            TheBossHub
+                        </div>
+                        <div class="ProxyId">
+                            (1)
+                        </div>
+                    </div>
+                </div>
+                <div class="Button" id="ClearJASAO" style="width:100%">
+                    Clear JASAO Records
+                </div>
+            </div>
+        </div>
+        <div id="Alert">
+
+        </div>
+    </body>
+    <script>
+        const searchIcon = document.getElementById("Search");
+        const searchBar = document.getElementById("SearchBar");
+        const usernameEntry = document.getElementById("Username");
+        const avatarIcon = document.getElementById("AvatarIcon")
+        const notesEntry = document.getElementById("Notes");
+        const ranksDropdown = document.getElementById("Ranks");
+        const ranksDropdownMenu = ranksDropdown.getElementsByClassName("DropdownMenu")[0];
+        const ranks = [];
+        for (let i = 0;i<ranksDropdownMenu.children.length;i++){
+            ranks.push(ranksDropdownMenu.children.item(i));
+        };
+        const banReasonEntry = document.getElementById("BanReason");
+        const banLengthEntry = document.getElementById("BanLength");
+        const banTypeDropdown = document.getElementById("BanDateTypes");
+        const banDropdownMenu = banTypeDropdown.getElementsByClassName("DropdownMenu")[0];
+        const banLengthType = [];
+        for (let i = 0;i<banDropdownMenu.children.length;i++){
+            banLengthType.push(banDropdownMenu.children.item(i));
+        };
+        const banAction = document.getElementById("BanAction");
+        const bannerEntry = document.getElementById("Banner");
+        const discordList = document.getElementById("DiscordList");
+        const discordTemplate = document.getElementById("TemplateDiscord");
+        const discordAvatarIcon = document.getElementById("DiscordAvatarIcon");
+        const jasaoRecordsList = document.getElementById("JASAORecords");
+        const jasaoTemplate = document.getElementById("TemplateJASAO");
+        const jasaoClear = document.getElementById("ClearJASAO");
+        const dropDownTextRank = ranks
+        const addDiscord = document.getElementById("AddDiscord");
+        const discordEntry = document.getElementById("DiscordSnowflakeEntry");
+        const ranksDropdownText = ranksDropdown.getElementsByClassName("Text")[0];
+        const bansDropdownText = banTypeDropdown.getElementsByClassName("Text")[0];
+        const simulateEnter = 
+        /**
+         * @param {HTMLElement}  element
+         * @param {Function} eventlistener
+         **/
+        function(element, eventlistener){
+            element.addEventListener("keydown", function(ev){
+                if (ev.keyCode == 13){
+                    element.blur();
+                    if (eventlistener)
+                        eventlistener();
+                }
+            });
+        };
+        searchIcon.addEventListener("click", function(){
+            searchBar.focus();
+            searchBar.value = "";
+            usernameEntry.style.display = "none";
+        });
+        searchBar.addEventListener("focusout", function(){
+            usernameEntry.style.display = "inline";
+        });
+        banLengthType.forEach(function(va){
+            va.addEventListener("click", function(){
+                bansDropdownText.textContent = va.attributes.dateType.textContent;
+            });
+        });
+        let jadeProfileData = null;
+        const interactJadeProfile = function(username, changes){
+            return new Promise(function(accept, reject){
+                let param = {Username: username, Changes: changes || []};
+                let xhml = new XMLHttpRequest();
+                xhml.open("POST", "/interactProfile");
+                xhml.addEventListener("readystatechange", function(){
+                    if (xhml.readyState == 4)
+                        if (xhml.status == 200){
+                            let data = JSON.parse(xhml.response)
+                            accept(data.ProfileData);
+                            data.Changes.forEach(function(va){
+                                if (va.Success != true){
+                                    if (va.Success == false){
+                                        alert(`[${va.Action}] action wasn't successful.`);
+                                    }else
+                                        alert(`[${va.Action}] action wasn't successful. Reason: ${va.Success}`);
+                                }
+                            });
+                        }else{
+                            reject(xhml.response);
+                        }
+                });
+                xhml.send(JSON.stringify(param));
+            });
+        };
+        const getJadeProfile = function(username){
+            return new Promise(function(accept, reject){
+                interactJadeProfile(username).then(function(data){
+                    jadeProfileData = data;
+                    accept();
+                }).catch(function(er){
+                    reject(er);
+                });
+            });
+        };
+        const rankReference = {
+            "256": "President",
+            "255": "Vice President",
+            "254": "Server Administrator",
+            "253": "Developer",
+            "252": "Administrator",
+            "251": "Moderator",
+            "201": "Guild Moderator",
+            "200": "Whitelisted",
+            "1": "Member",
+        }
+        const calculateClosestDateFromSecond = function(sec){
+            if (sec == -1){
+                return [0, "Permanent"];
+            }
+            let time = [["Seconds", 0], ["Minutes", 60], ["Hours", 3600], ["Days", 86400], ["Months", 2592000], ["Years", 31104000]];
+            let closestMatch = time[0];
+            for (let i = 0;i<time.length;i++){
+                let timeSe = time[i];
+                if (timeSe[1] < sec){
+                    closestMatch = timeSe;
+                }else
+                    break;
+            }
+            return [Math.floor(sec/Math.max(closestMatch[1], 1)+.5), closestMatch[0]];
+        }
+        const loadingUI = function(){
+            notesEntry.classList.add(["Loading"]);
+            ranksDropdown.classList.add(["Loading"]);
+            banLengthEntry.classList.add(["Loading"]);
+            banTypeDropdown.classList.add(["Loading"]);
+            banReasonEntry.classList.add(["Loading"]);
+            banAction.classList.add(["Loading"]);
+            discordList.classList.add(["Loading"]);
+            jasaoRecordsList.classList.add(["Loading"]);
+            jasaoClear.classList.add(["Loading"]);
+            discordEntry.classList.add(["Loading"]);
+            addDiscord.classList.add(["Loading"]);
+        }
+        let banUiInt;
+        const updateUI = function(){
+            if (banUiInt){
+                clearInterval(banUiInt);
+                banUiInt = null;
+            }
+            usernameEntry.textContent = jadeProfileData.RobloxUserName || "...";
+            if (usernameEntry.textContent != "...")
+                usernameEntry.textContent += `(${jadeProfileData.RobloxId})`;            
+            avatarIcon.src = 
+            jadeProfileData.AvatarUrl ||"/resources/UnknownUserHeadshot.png";
+            notesEntry.value = jadeProfileData.Notes || "";
+            notesEntry.classList.remove(["Loading"]);
+            ranksDropdownText.textContent = rankReference[jadeProfileData.Rank] || "Rank: ";
+            if (ranksDropdownText.textContent == "Rank: "){
+                ranksDropdownText.style.color = "darkgrey";
+            }else{
+                ranksDropdownText.style.color = "white";
+                ranksDropdown.classList.remove(["Loading"]);
+            }
+            let banData = jadeProfileData.BanData;
+            if (banData){
+                let dateFormat = calculateClosestDateFromSecond(banData.Duration);
+                banReasonEntry.value = banData.BanReason;
+                banLengthEntry.value = dateFormat[0];
+                bansDropdownText.textContent = dateFormat[1] || "Ban Date Type: ";
+                bansDropdownText.style.color = "white";
+                banAction.textContent = "Remove Global Ban (Unban)";
+                let updateText = ()=>{
+                    let dateFormat = calculateClosestDateFromSecond(banData.Duration);
+                    if (banData.Duration == -1){
+                        bannerEntry.textContent = "Banned by " + banData.Banner + " on " + (new Date(banData.BanDate)).toLocaleString() + ". This ban is permanent!";
+                        return;
+                    }
+                    if (Date.now() > banData.Duration*1000+banData.BanDate){
+                        let dateFormat = calculateClosestDateFromSecond((Date.now() - (banData.Duration*1000+banData.BanDate))/1000);
+                        bannerEntry.textContent = "Banned by " + banData.Banner + " on " + (new Date(banData.BanDate)).toLocaleString() + ". This ban has expired! Expired " + dateFormat[0] + " " + dateFormat[1] + " ago.";
+                    }else{
+                        let dateFormat = calculateClosestDateFromSecond((banData.Duration*1000+banData.BanDate-Date.now())/1000);
+                        bannerEntry.textContent = "Banned by " + banData.Banner + " on " + (new Date(banData.BanDate)).toLocaleString()  + ". Expires in " + dateFormat[0] + " " + dateFormat[1];
+                    }
+                }
+                banUiInt = setInterval(updateText, 1000);
+                updateText();
+            }else{
+                bannerEntry.textContent = "";
+                banAction.textContent = "Global Ban";
+                bansDropdownText.textContent = "Ban Date Type: ";
+                banLengthEntry.value = "";
+                bansDropdownText.style.color = "darkgrey";
+                banReasonEntry.value = "";
+            }
+            banLengthEntry.classList.remove(["Loading"]);
+            banTypeDropdown.classList.remove(["Loading"]);
+            banReasonEntry.classList.remove(["Loading"]);
+            banAction.classList.remove(["Loading"]);
+            let children = discordList.children;
+            let childs = [];
+            for (let i = 0;i<children.length;i++){
+                childs.push(children.item(i));
+            }
+            for (let i = 0;i<childs.length;i++){
+                let item = childs[i];
+                if (item.id == "TemplateDiscord")
+                    continue;
+                discordList.removeChild(item);
+                item.remove();
+            }
+            if (jadeProfileData.DiscordIcon){
+                discordAvatarIcon.style.display = "unset";
+                discordAvatarIcon.src = jadeProfileData.DiscordIcon;
+            }else
+                discordAvatarIcon.style.display = "none";
+            jadeProfileData.Discords.forEach(function(va){
+                let clone = discordTemplate.cloneNode(true);
+                clone.getElementsByClassName("Username")[0].textContent = va[0];
+                clone.getElementsByClassName("DiscordId")[0].textContent = "(" + va[1] + ")";
+                clone.style.display = "block";
+                clone.id = "";
+                discordList.append(clone);
+                let deleteButton = clone.getElementsByClassName("DeleteButton")[0];
+                deleteButton.addEventListener("click", function(){
+                    interactJadeProfile(jadeProfileData.RobloxUserName, [
+                        {
+                            Action: "DiscordRemove",
+                            Arguments: va[1]
+                        }
+                    ]).then(function(jadeProfile){
+                        jadeProfileData = jadeProfile;
+                        updateUI();
+                    });
+                });
+            });
+            discordList.classList.remove(["Loading"]);
+            discordEntry.classList.remove(["Loading"]);
+            addDiscord.classList.remove(["Loading"]);
+            children = jasaoRecordsList.children;
+            childs = [];
+            for (let i = 0;i<children.length;i++){
+                childs.push(children.item(i));
+            }
+            for (let i = 0;i<childs.length;i++){
+                let item = childs[i];
+                if (item.id == "TemplateJASAO")
+                    continue;
+                    jasaoRecordsList.removeChild(item);
+                item.remove();
+            }
+            for (let i in jadeProfileData.JASAORecords){
+                let badminClassification = jadeProfileData.JASAORecords[i];
+                badminClassification.forEach(function(va){
+                    let clone = jasaoTemplate.cloneNode(true);
+                    clone.getElementsByClassName("Offense")[0].textContent = i;
+                    clone.getElementsByClassName("ProxyId")[0].textContent = "(" + va + ")";
+                    clone.style.display = "block";
+                    clone.id = "";
+                    jasaoRecordsList.append(clone);
+                });
+            }
+            jasaoRecordsList.classList.remove(["Loading"]);
+            jasaoClear.classList.remove(["Loading"]);
+        };
+        simulateEnter(notesEntry, function(){
+            if (jadeProfileData){
+                if (notesEntry.value == ""){
+                    interactJadeProfile(jadeProfileData.RobloxUserName, [
+                        {
+                            Action: "ClearNotes",
+                        }
+                    ]).then(function(jadeProfile){
+                        jadeProfileData = jadeProfile;
+                        updateUI();
+                    });
+                    return;
+                }
+                interactJadeProfile(jadeProfileData.RobloxUserName, [
+                    {
+                        Action: "Notes",
+                        Arguments: notesEntry.value
+                    }
+                ]).then(function(jadeProfile){
+                    jadeProfileData = jadeProfile;
+                    updateUI();
+                });
+            }
+                
+        });
+        jasaoClear.addEventListener("click", function(){
+            if (jadeProfileData)
+                interactJadeProfile(jadeProfileData.RobloxUserName, [
+                        {
+                            Action: "ClearJASAORecords",
+                            Arguments: ""
+                        }
+                    ]).then(function(jadeProfile){
+                        jadeProfileData = jadeProfile;
+                        updateUI();
+                    });
+        });
+        addDiscord.addEventListener("click", function(){
+            if (jadeProfileData)
+                interactJadeProfile(jadeProfileData.RobloxUserName, [
+                        {
+                            Action: "DiscordAdd",
+                            Arguments: discordEntry.value
+                        }
+                    ]).then(function(jadeProfile){
+                        jadeProfileData = jadeProfile;
+                        updateUI();
+                    });
+        });
+        banAction.addEventListener("click", function(){
+            if (jadeProfileData)
+                if (jadeProfileData.BanData){
+                    interactJadeProfile(jadeProfileData.RobloxUserName, [
+                        {
+                            Action: "Unban",
+                            Arguments: notesEntry.value
+                        }
+                    ]).then(function(jadeProfile){
+                        jadeProfileData = jadeProfile;
+                        updateUI();
+                    });
+                }else{
+                    let timeFactor = Number(banLengthEntry.value);
+                    switch(bansDropdownText.textContent){
+                        case "Permanent":{
+                            timeFactor = -1;
+                            break;
+                        }
+                        case "Years":{
+                            timeFactor *= 12;
+                        }
+                        case "Months":{
+                            timeFactor *= 30;
+                        }
+                        case "Days":{
+                            timeFactor *= 24;
+                        }
+                        case "Hours":{
+                            timeFactor *= 60;
+                        }
+                        case "Minutes":{
+                            timeFactor *= 60;
+                        }
+                    }
+                    interactJadeProfile(jadeProfileData.RobloxUserName, [
+                        {
+                            Action: "Ban",
+                            Arguments: {
+                                Reason: banReasonEntry.value,
+                                Duration: timeFactor
+                            }
+                        }
+                    ]).then(function(jadeProfile){
+                        jadeProfileData = jadeProfile;
+                        updateUI();
+                    });
+                }
+        })
+        ranks.forEach(function(va){
+            va.addEventListener("click", function(){
+                ranksDropdownText.textContent = va.attributes.roleName.textContent;
+                if (jadeProfileData){
+                    interactJadeProfile(jadeProfileData.RobloxUserName, [
+                        {
+                            Action: "Rank",
+                            Arguments: ranksDropdownText.textContent
+                        }
+                    ]).then(function(jadeProfile){
+                        jadeProfileData = jadeProfile;
+                        updateUI();
+                    });
+                }
+            });
+        });
+        const viewProfile = function(username){
+            loadingUI();
+            usernameEntry.textContent = "Loading..."
+            getJadeProfile(username).then(function(){
+                updateUI();
+            }).catch(function(err){
+                usernameEntry.textContent = "Error: " + err;
+                avatarIcon.src = "/resources/UnknownUserHeadshot.png";
+            });;
+        };
+        simulateEnter(searchBar, function(){
+            viewProfile(searchBar.value);
+        });
+        simulateEnter(banLengthEntry);
+        simulateEnter(banReasonEntry);
+        simulateEnter(discordEntry);
+        loadingUI();
+        usernameEntry.textContent = "Click search icon";
+        avatarIcon.src = "/resources/UnknownUserHeadshot.png";
+    </script>
+</html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<!--Imagine safari iOS big fat :flushed: apple fat-->
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+        <link rel="manifest" href="/resources/site.webmanifest">
+        <link rel="mask-icon" href="/resources/safari-pinned-tab.svg" color="#032a35">
+        <title>Jade's Admin Console</title>
+        <style>
+            body{
+                font-family: "Source Sans Pro", sans-serif;
+                background-color: rgb(20, 20, 29);
+            }
+            #StatusBar{
+                position: fixed;
+                width: 100%;
+                height: 40px;
+                background-color: rgb(29, 29, 29);
+                top:0px;
+                left:0px;
+                border-radius: 15px;
+                border-top-left-radius: 0px;
+                border-top-right-radius: 0px;
+                color: rgb(0, 170, 255);
+                font-size: 30px;
+                text-align: center;
+                z-index: 5;
+                white-space: nowrap;
+            }
+            .StatusBox{
+                height: 30px;
+                width:fit-content;
+                margin-top: 3px;
+                border-radius: 25px;
+                background-color: rgb(0, 170, 255);
+                transition: background-color 1s;
+                float:left;
+                margin-left: 25px;
+            }
+            .StatusText{
+                padding-left: 10px;
+                padding-right: 10px;
+                color: rgb(29, 29, 29);
+                font-size: 20px;
+            }
+            #Console{
+                position: fixed;
+                top: 50px;
+                font-size: 15px;
+                width: 100%;
+                color: rgb(0, 170, 255);
+                height: 100vh;
+                left:0px;
+            }
+            .Entry{
+                position: absolute;
+                width:100%;
+                font-size: 15px;
+                height: 20px;
+                border: 0px;
+                font-family: 'Inconsolata', monospace;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            #TemplateEntry{
+                visibility: hidden;
+                width: 95%;
+            }
+            #CommandBar{
+                position: fixed;
+                bottom: 10px;
+                user-select: none;
+                left:6px;
+                background-color: rgb(20, 20, 29);
+            }
+            #Input{
+                min-width: 300px;
+                max-width: 90vw;
+                background: unset;
+                border: unset;
+                color: rgb(0, 170, 255);
+                font-size: 15px;
+                font-family: 'Inconsolata', monospace;
+                transition: .1s width linear;
+            }
+            #Input:focus{
+                outline: none;
+            }
+            #Submit{
+                background: unset;
+                position: relative;
+                top: 0px;
+                border-radius: 5px;
+                border: 1px solid rgb(0, 170, 255);
+                color:rgb(0, 170, 255);
+                transition: .25s color, .25s background-color;
+            }
+            #Submit:hover{
+                color: rgb(10, 10, 29);
+                background-color: rgb(0, 170, 255);
+            }
+            #Submit:focus{
+                outline: none;
+            }
+            .AutoCorrectButt{
+                background: unset;
+                position: relative;
+                top: 0px;
+                border-radius: 5px;
+                border: 1px solid rgb(0, 170, 255);
+                color:rgb(0, 170, 255);
+                top: 40px;
+                transition: .25s color, .25s background-color, .25s top;
+            }
+            #TemplateButton{
+                position: fixed;
+                visibility: hidden;
+            }
+            .AutoCorrectButt:focus{
+                outline: none;
+            }
+            #EntryList{
+                width:95%;
+                height:100vh;
+                position: fixed;
+                bottom: 0px;
+                transition: .25s bottom;
+                left:6px;
+            }
+            .Time{
+                width:fit-content;
+                float: left;
+                /*width: 74px;*/
+                height: 16px;
+                line-height: 20px;
+            }
+            .Message{
+                white-space: pre;
+                line-height: 20px;
+                position: absolute;
+                left: 74px;
+            }
+            #Title{
+                position: absolute;
+                left:50%;
+                margin-left: -195px;
+            }
+            @media only screen and (max-width: 700px) {
+                #Title{
+                    display:none;
+                }
+                .StatusBox{
+                    display:inline-block;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="StatusBar">
+            <div class="StatusBox" id="Ping">
+                <div class="StatusText">
+                    Ping: loading...
+                </div>
+            </div>
+            <div id="Title">
+                Jade's Remote Control Console
+            </div>
+        </div>
+        <div id="Console">
+            <div id="ResizeTemplate">
+                <div class="Entry" id="TemplateEntry">
+                    <div class="Time"></div>
+                    <div class="Message"></div>
+                </div>
+            </div>
+            <div id="EntryList">
+            </div>
+            <form id="CommandBar" style="font-weight: bold;">
+                >
+                <input id="Input" type="text" placeholder="Press ; or here to enter a command!" autocomplete="off">
+                <input id="Submit" type="submit" value="Enter">
+                <input id="TemplateButton" type="button" class="AutoCorrectButt" value="aaa">
+            </form>
+            <canvas id="Process"></canvas>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script>
+        let currentSocket;
+        let logs = [{Time: Date.now()-1000, System: "Client", Message: "Hi user!", Color:[0, 170, 255]},{Time: Date.now(), System: "Client", Message: "This is Jade's remote controller console. If you are an administrator, there is no need to enter an authentication code. We already done it for you!", Color:[0, 255, 85]}];
+        const renderEntries = [];
+        const pingStatusText = document.getElementById("Ping").getElementsByClassName("StatusText")[0];
+        const template = document.getElementById("TemplateEntry");
+        const consoleGUI = document.getElementById("Console");
+        const input = document.getElementById("Input");
+        const bounder = document.getElementById("Process");
+        const entryList = document.getElementById("EntryList");
+        const form = document.getElementById("CommandBar");
+        const buttonTemplate = document.getElementById("TemplateButton");
+        const uiContext = bounder.getContext("2d");
+        uiContext.font = "15px Inconsolata";
+        let scrollCurrent = 0;
+        let debounceLogs = false;
+        let consoleId = Cookies.get("consoleSession");
+        let commands = [];
+        let textReplace = {};
+        let currentButtons = [];
+        let connectToRemoteServer;
+        if (consoleId == null){
+            consoleId = "";
+            for (let i = 0;i<10;i++){
+                consoleId += Math.floor(Math.random()*10);
+            }
+            Cookies.set("consoleSession", consoleId, {expires: 5})
+        }else
+            logs.push({Time: Date.now(), System: "Client", Message: "Console reconnected with a existing session!", Color: [0, 255, 85]});
+        const systemLog = function(system, message, color, now){
+            color = color || [255, 255, 255];
+            logs.push({Time: now || Date.now(), System: system, Message: message, Color: color});
+            let oldLength = logs.length;
+            if (debounceLogs == false){
+                debounceLogs = true;
+                updateGUIText();
+                setTimeout(() => {
+                    debounceLogs = false;
+                    if (oldLength != logs.length)
+                        updateGUIText();
+                }, 50);
+            }
+        }
+        let functionClick = null;
+        const updateButtons = function(array){
+            functionClick = null;
+            if (currentSocket == null){
+                array = [["Reconnect to the admin system", function(){connectToRemoteServer(true)}, [0, 255, 255]],
+                ["Reconnect Insecurely", function(){connectToRemoteServer(false)}, [255, 0, 0]]];
+            }
+            currentButtons.forEach(function(va, index){
+                if (va == null || (array[index] && array[index][0] == va[0]))
+                    return;
+                va[1].style.top = "40px";
+                setTimeout(() => {
+                    form.removeChild(va[1]);
+                }, 100);
+                currentButtons[index] = null;
+            })
+            let width = 0;
+            array.forEach(function(va, index){
+                if (currentButtons[index]){
+                    let object = currentButtons[index][1];
+                    object.defaultColor = "rgb(" + va[2][0] +  "," +  va[2][1] + "," +  va[2][2] +  ")";
+                    object.style.borderColor = object.defaultColor;
+                    object.style.color = object.defaultColor;
+                    width += object.offsetWidth;
+                    if (va[1] == null)
+                        functionClick = null;
+                    if (va[1] && functionClick == null)
+                        functionClick = va[1];
+                    return;
+                }
+                let clone = buttonTemplate.cloneNode();
+                form.appendChild(clone);
+                clone.style.position = "relative";
+                clone.style.visibility = "visible";
+                clone.defaultColor = "rgb(" + va[2][0] +  "," +  va[2][1] + "," +  va[2][2] +  ")";
+                setTimeout(()=>{
+                    clone.style.top = "0px";
+                }, 10)
+                va[2] = va[2] || [0, 170, 255];
+                clone.style.borderColor = clone.defaultColor;
+                clone.style.color = clone.defaultColor;
+                clone.addEventListener("mouseenter", function(){
+                    clone.style.color = "rgb(20, 20, 29)";
+                    clone.style.backgroundColor = clone.defaultColor;
+                });
+                clone.addEventListener("mouseleave", function(){
+                    clone.style.color = clone.defaultColor;
+                    clone.style.backgroundColor = "rgb(20, 20, 29)";
+                });
+                clone.value = va[0];
+                if (va[1]){
+                    if (va[1] == null)
+                        functionClick = null;
+                    if (va[1] && functionClick == null)
+                        functionClick = va[1];
+                    clone.addEventListener("click", va[1]);
+                    clone.title = "Interactable";
+                }
+                width += clone.offsetWidth;
+                currentButtons[index] = [va[0], clone];
+            });
+            input.style.maxWidth = window.innerWidth-width-80 + "px";
+            setTimeout(() => {
+                entryList.style.bottom = Math.max(form.offsetHeight-28, 0) + "px";
+            }, 100);
+        }
+        updateButtons(
+            [["Hi", function(){systemLog("Client", "Hi!", [0, 170, 255])}, [0, 255, 85]],
+            ["HTesttttttttttttti", function(){systemLog("Client", "Tehis is a test!", [255, 170, 255])}, [85, 255, 0]]
+        ,["XDXDXDXDXDXD", function(){systemLog("Client", "Tehis is a test!\nHello World!", [255, 0, 0])}, [255, 0, 255]],
+        ["XDXDXDXDXDXD", function(){systemLog("Client", "TestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestTestA", [255, 0, 0])}, [255, 0, 255]]]
+            )
+        const formatCommand = function(commandText){
+            let tab = [];
+            while (true){
+                let entry = commandText.search(/[^\\\\];/);
+                if (entry != -1 || commandText[0] == ";"){
+                    if (commandText[0] == ";")
+                        entry = -1;
+                    tab.push(commandText.substr(0, entry+1).replace(/\\;/g, ";"));
+                    commandText = commandText.substr(entry+2);
+                }else{
+                    tab.push(commandText.replace(/\\;/g, ";"));
+                    break;
+                }
+            }
+            return tab;
+        }
+        const runCommand = function(commandText){
+            let nTab = formatCommand(commandText);
+            let commandString = nTab[0];
+            currentSocket.send(JSON.stringify({
+                Id: "Execute",
+                Arguments: nTab
+            }));
+            /**let xhml = new XMLHttpRequest();
+            xhml.open("POST", "/consoleApply?login=" + consoleId);
+            xhml.addEventListener("readystatechange", function(){
+                if (xhml.status == 200 && xhml.readyState == 4){
+                    let contents = JSON.parse(xhml.response);
+                    if (contents)
+                        systemLog("Command", contents.Message, contents.Color)
+                }
+            })
+            xhml.send(JSON.stringify(nTab));**/
+            systemLog("Client", "=>;" + commandText);
+        }
+        form.addEventListener("submit", function(event){
+            event.preventDefault();
+            input.blur();
+            if (currentSocket == null && input.value == "connect"){
+                connectToRemoteServer(true);
+                input.value = "";
+                input.style.width = "unset";
+                return;
+            }
+            if (currentSocket == null && input.value == "connectinsecure"){
+                connectToRemoteServer(false);
+                input.value = "";
+                input.style.width = "unset";
+                return;
+            }
+            let nTab = formatCommand(input.value);
+            let variationTarget = null;
+            let closestLength = 100;
+            for (let i = 0;i<commands.length;i++){
+                let va = commands[i];
+                for (let r = 0;r<va.Variations.length;r++){
+                    let variat = va.Variations[r];
+                    if (variat.substring(0, nTab[0].length) == nTab[0] && closestLength>Math.abs(variat.length-nTab[0].length)){
+                        variationTarget = variat;
+                        closestLength = Math.abs(variat.length-nTab[0].length);
+                    }
+                }
+            }
+            if (variationTarget){
+                let nTab = formatCommand(input.value);
+                let newString = "";
+                for (let r = 0;r<nTab.length;r++){
+                    if (r == 0){
+                        newString += variationTarget + ";";
+                    }else{
+                        newString += nTab[r].replace(";", "\\;") + ";";
+                    }
+                }
+                input.value = newString.substr(0, newString.length-1);
+            }
+            runCommand(input.value);
+            input.value = "";
+            input.style.width = "unset";
+            updateButtons([]);
+        })
+        consoleGUI.addEventListener("dragstart", function(ev){
+            ev.preventDefault();
+        })
+        input.addEventListener("input", function(){
+            input.style.width = uiContext.measureText(input.value).width + "px";
+            let nTab = formatCommand(input.value);
+            let closestCommandName = null;
+            let variationTarget = null;
+            let closestLength = 100;
+            for (let i = 0;i<commands.length;i++){
+                let va = commands[i];
+                for (let r = 0;r<va.Variations.length;r++){
+                    let variat = va.Variations[r];
+                    if (variat.substring(0, nTab[0].length) == nTab[0] && closestLength>Math.abs(variat.length-nTab[0].length)){
+                        closestLength = Math.abs(variat.length-nTab[0].length);
+                        closestCommandName = va;
+                        variationTarget = variat;
+                    }
+                }
+            }
+            if (closestCommandName){
+                let buildArray = [];
+                if (nTab[0] != variationTarget){
+                    buildArray.push([closestCommandName.Name, null, [255, 0, 255]]);
+                    buildArray.push([variationTarget, function(){input.focus(); if (nTab[0] != variationTarget) input.value = variationTarget + ";";}, [0, 255, 255]]);
+                }else{
+                    buildArray.push([closestCommandName.Name, null, [0, 255, 85]]);
+                    buildArray.push([variationTarget, function(){input.focus(); if (nTab[0] != variationTarget) input.value = variationTarget + ";";}, [0, 255, 255]]);
+                    for (let i = 0;i<Math.min(closestCommandName.Arguments.length, nTab.length-1);i++){
+                        buildArray.push([closestCommandName.Arguments[i][0] + "(" + closestCommandName.Arguments[i][1] +")", null, [255, 85, 0]]);
+                        let type = closestCommandName.Arguments[i][1];
+                        let textReplaceLib = textReplace[type];
+                        if (textReplaceLib){
+                            let matches = 0;
+                            let subBuildArray = [];
+                            textReplaceLib.forEach(function(va, index){
+                                if (va.toLowerCase().match(nTab[i+1].toLowerCase())){//va.substring(0,nTab[i+1].length).toLowerCase() == nTab[i+1].toLowerCase()){
+                                    matches ++;
+                                    subBuildArray.push([va, 
+                                        function(){
+                                            let nTab = formatCommand(input.value);
+                                            let newString = "";
+                                            for (let r = 0;r<nTab.length;r++){
+                                                if (r == i+1){
+                                                    newString += va + ";";
+                                                }else{
+                                                    newString += nTab[r].replace(";", "\\;") + ";";
+                                                }
+                                            }
+                                            input.value = newString.substr(0, newString.length-1);
+                                            input.focus();
+                                        }, 
+                                        [255, 255, 0]]
+                                    );
+                                }
+                            });
+                            if (matches < 100){
+                                subBuildArray.forEach(function(va){
+                                    buildArray.push(va);
+                                });
+                            }
+                        }
+                    }
+                }
+                updateButtons(buildArray);
+            }else{
+                updateButtons([["Unknown Command(press to use ;cmd)", function(){runCommand("cmd");}, [255, 0, 255]]]);
+            }
+        })
+        let debounceWheel = false;
+        let lastRenderData = {Length: 0, Array: []};
+        consoleGUI.addEventListener("wheel", function(event){
+            event.preventDefault();
+            let height = window.innerHeight-120;
+            let maxFitEntries = Math.floor(height/20);
+            let sign = -Math.sign(event.deltaY)*4;
+            let change = scrollCurrent != Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+            scrollCurrent = Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+            if (debounceWheel == false){
+                debounceWheel = true;
+                if (change)
+                    updateGUIText();
+                setTimeout(() => {
+                    debounceWheel = false;
+                }, 25);
+            }
+        })
+        let startY = null;
+        consoleGUI.addEventListener("touchstart", function(event){
+            startY = event.touches[0].clientY;
+        });
+        consoleGUI.addEventListener("touchmove", function(event){
+            event.preventDefault();
+            if (startY == null){
+                return;
+            }
+            let difference = event.touches[0].clientY-startY;
+            let height = window.innerHeight-120;
+            let maxFitEntries = Math.floor(height/20);
+            let sign = Math.floor(difference/8);
+            let change = scrollCurrent != Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+            scrollCurrent = Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+            if (debounceWheel == false){
+                debounceWheel = true;
+                if (change)
+                    updateGUIText();
+                setTimeout(() => {
+                    debounceWheel = false;
+                }, 25);
+            }
+        })
+        document.addEventListener("keydown", function(event){
+            if (event.keyCode == 9){
+                if (functionClick)
+                    functionClick();
+                event.preventDefault();
+                setTimeout(() => {
+                    input.focus();
+                }, 10);
+            }
+            if (event.keyCode == 186){
+                setTimeout(() => {
+                    input.focus();
+                }, 10);
+            }
+            if (event.keyCode == 35){
+                if (scrollCurrent == 0)
+                    return;
+                scrollCurrent = 0;
+                updateGUIText();
+            }
+            if (event.keyCode == 36){
+                let height = window.innerHeight-120;
+                let maxFitEntries = Math.floor(height/20);
+                if (scrollCurrent == Math.max(0, lastRenderData.Array.length-maxFitEntries-1))
+                    return;
+                scrollCurrent = Math.max(0, lastRenderData.Array.length-maxFitEntries-1);
+                updateGUIText();
+            }
+            if (event.keyCode == 33 || event.keyCode == 34){
+                let height = window.innerHeight-120;
+                let maxFitEntries = Math.floor(height/20);
+                let sign = maxFitEntries;
+                if (event.keyCode == 34){
+                    sign = -maxFitEntries;
+                }
+                let change = scrollCurrent != Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+                scrollCurrent = Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+                if (debounceWheel == false){
+                    debounceWheel = true;
+                    if (change)
+                        updateGUIText();
+                    setTimeout(() => {
+                        debounceWheel = false;
+                    }, 25);
+                }
+            }
+            if (event.keyCode == 38 || event.keyCode == 40){
+                let height = window.innerHeight-120;
+                let maxFitEntries = Math.floor(height/20);
+                let sign = 1;
+                if (event.keyCode == 40){
+                    sign = -1;
+                }
+                let change = scrollCurrent != Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+                scrollCurrent = Math.min(Math.max(scrollCurrent + sign, 0), Math.max(0, lastRenderData.Array.length-maxFitEntries-1));
+                if (debounceWheel == false){
+                    debounceWheel = true;
+                    if (change)
+                        updateGUIText();
+                    setTimeout(() => {
+                        debounceWheel = false;
+                    }, 25);
+                }
+            }
+        })
+        let timeConversion = function(seconds){
+            seconds = Math.max(Math.floor(seconds), 0);
+            let time = "";
+            let days = Math.floor(seconds/86400);
+            if (days > 0)
+                if (days < 10){
+                    time += "0" + days + ":";
+                }else  
+                    time += days + ":";
+            let hour = Math.floor(seconds/3600%24);
+            if (hour < 10){
+                time += "0" + hour + ":";
+            }else  
+                time += hour + ":";
+            let minute = Math.floor(seconds/60)%60;
+            if (minute < 10){
+                time += "0" + minute + ":";
+            }else  
+                time += minute + ":";
+            seconds = seconds%60;
+            if (seconds < 10){
+                time += "0" + seconds;
+            }else  
+                time += seconds;
+            return time;
+        }
+        let msgBoxTemplate = template.getElementsByClassName("Message")[0];
+        let timeConversionLength = function(seconds){
+            return 8*6+8*(6+Math.max(String(Math.floor(seconds/3600)).length,2)-2);
+        }
+        let lastScrollCurrent = scrollCurrent;
+        let mustUpdateText = false;
+        let updateGUIText = function(){
+            mustUpdateText = scrollCurrent != lastScrollCurrent || mustUpdateText;
+            lastScrollCurrent = scrollCurrent;
+            if (lastRenderData.Length != logs.length){
+                mustUpdateText = true;
+                let offset = logs.length - lastRenderData.Length;
+                for (let i = logs.length-offset;i<logs.length;i++){
+                    let value = logs[i];
+                    let cutLine = "";
+                    let escapes = value.Message.split(/\n/);
+                    value.Message = escapes.shift()
+                    escapes.forEach(function(va, index){
+                        va = {Color: value.Color, Message: va, System: value.System, CharacterOffset: true, Time: value.Time};
+                        logs.splice(i+1+index, 0, va);
+                    });
+                    let newValue2 = "";
+                    let message = value.CharacterOffset ? value.Message : "[" + value.System  + "]" + value.Message;
+                    let feedIndexRate = 1;
+                    for (let r = 0;r<message.length;r+=feedIndexRate){
+                        let predictedFewLength = 8*(cutLine + message.substr(r, feedIndexRate)).length+timeConversionLength(value.Time);
+                        feedIndexRate = Math.max(4, Math.min(30, Math.floor(window.innerWidth-predictedFewLength)/1));
+                        if (uiContext.measureText(cutLine + message.substr(r, feedIndexRate)).width+timeConversionLength(value.Time) >= window.innerWidth+50){
+                            newValue2 += cutLine + "\n";
+                            cutLine = message.substr(r, feedIndexRate);
+                        }else{
+                            cutLine += message.substr(r, feedIndexRate);
+                        }
+                    }
+                    newValue2 += cutLine;
+                    if (newValue2.length == 0)
+                        newValue2 = message;
+                    /*lastRenderData.Array.push(value);
+                    msgBoxTemplate.innerText = value.Message;
+                    for (let r = 0;r<msgBoxTemplate.offsetHeight/20-1;r++){
+                        lastRenderData.Array.push({Color: value.Color, CharacterOffset: true});
+                    }*/
+                    newValue2.split(/\n/).forEach(function(value2, index){
+                        if (index == 0){
+                            value2 = {Color: value.Color, Message: value2, System: value.System, CharacterOffset: value.CharacterOffset, Time: value.Time};
+                        }else
+                            value2 = {Color: value.Color, Message: value2, System: value.System, CharacterOffset: true, Time: value.Time};
+                        lastRenderData.Array.push(value2);
+                        if (scrollCurrent != 0){
+                            scrollCurrent += 1;
+                        }
+                    });
+                }
+                lastRenderData.Length = logs.length;
+            }
+            let attemptSet = function(element, text){
+                if (element.innerText != text){
+                    element.innerText = text;
+                    return true;
+                }
+                return false;
+            };
+            let colorDimFactor = 1;
+            renderEntries.forEach(function(value, index){
+                let message = lastRenderData.Array[lastRenderData.Array.length-index-1-scrollCurrent];
+                let msgBox = value.getElementsByClassName("Message")[0];
+                let timeBox = value.getElementsByClassName("Time")[0];
+                if (message){
+                    if (value.style.color != "rgb(" + (message.Color[0]-colorDimFactor) + "," + (message.Color[1]-colorDimFactor) + "," + (message.Color[2]-colorDimFactor) + ")")
+                    value.style.color = "rgb(" + (message.Color[0]-colorDimFactor) + "," + (message.Color[1]-colorDimFactor) + "," + (message.Color[2]-colorDimFactor) + ")"
+                    if (message.CharacterOffset){
+                        if (mustUpdateText)
+                            attemptSet(msgBox, message.Message);
+                        attemptSet(timeBox, "");
+                    }else{
+                        if (mustUpdateText)
+                            attemptSet(msgBox, message.Message);
+                        attemptSet(timeBox, "[" + timeConversion((Date.now()-message.Time)/1000) + "]");
+                        if (msgBox.style.left != timeBox.offsetWidth + "px")
+                            msgBox.style.left = timeBox.offsetWidth + "px";
+                    }
+                }else{
+                    attemptSet(msgBox, "");
+                    attemptSet(timeBox, "");
+                }
+            })
+        }
+        updateGUI = function(){
+            let height = window.innerHeight;
+            let maxFitEntries = height/20;
+            let change = maxFitEntries-renderEntries.length;
+            msgBoxTemplate.innerText = "";
+            mustUpdateText = change != 0 || mustUpdateText;
+            for (let i = 0;i<Math.max(change, 0);i++){
+                let clone = template.cloneNode(true);
+                clone.style.bottom = (renderEntries.length+1)*20+20 + "px";
+                clone.id = "";
+                entryList.appendChild(clone);
+                renderEntries.push(clone);
+            }
+            for (let i = 0;i<Math.max(-change, 0);i++){
+                entryList.removeChild(renderEntries.pop());
+            }
+            entryList.style.bottom = Math.max(form.offsetHeight-28, 0) + "px";
+        }
+        let uiUpdateLast = Date.now();
+        let resized = true;
+        updateGUI();
+        window.addEventListener("resize", function(){
+            uiUpdateLast = Date.now();
+            resized = false;
+        })
+        let checkWindow = function(){
+            if (resized == false && Date.now()-uiUpdateLast > 50){
+                resized = true;
+                updateGUI();
+            }   
+        }
+        setInterval(() => {
+            for (let i = 0;i<20;i++){
+                setTimeout(() => {
+                    checkWindow();
+                }, 50*i);
+            }
+            updateGUIText();
+        }, 1000);
+        let connected = false;
+        let xhmlRequest = new XMLHttpRequest();
+        xhmlRequest.open("GET", "/getCommands");
+        xhmlRequest.addEventListener("readystatechange", function(){
+            if (xhmlRequest.readyState == 4 && xhmlRequest.status == 200){
+                commands = JSON.parse(xhmlRequest.response);
+            }
+        })
+        xhmlRequest.send();
+        let pinging = false;
+        let pingInt = null;
+        let pingTimeout = null;
+        let pingStart = 0;
+        let ping = null;
+        connectToRemoteServer = function(secure){
+            if (currentSocket)
+                return;
+            systemLog("Network", "[SOCKET CONNE]Establishing a Websocket connection with the admin system...", [0, 255, 0])
+            let socket = (()=>{
+                if (secure){
+                    return new WebSocket("wss://" + document.location.hostname + ":" + 38500 + "/?login=" + consoleId)
+                }else
+                    return new WebSocket("ws://" + document.location.hostname + ":" + 38500 + "/?login=" + consoleId)
+            })();
+            updateButtons([]);
+            socket.addEventListener("open", function(){
+                currentSocket = socket;
+                systemLog("Network", "[SOCKET OPEN]Established a Websocket connection!\"Hello World!!\"--Server", [0, 255, 0])
+            });
+            socket.addEventListener("message", function(data){
+                data = JSON.parse(data.data);
+                let id = data.Id;
+                data = data.Data;
+                switch(id){
+                    case "Updates":{
+                        for (let i = 0;i<data.NewLogs.length;i++){
+                            let v = data.NewLogs[i];
+                            systemLog(v.System, v.Message, v.Color, v.Now);
+                        }
+                        for (let i in data.AutoCorrectChanges){
+                            textReplace[i] = data.AutoCorrectChanges[i];
+                        }
+                        break;
+                    }
+                    case "Pong":{
+                        if (pinging){
+                            ping = (Date.now()-pingStart);
+                            clearInterval(pingInt);
+                            clearTimeout(pingTimeout);
+                            pinging = false;
+                            pingStatusText.textContent = `Ping: ${ping}ms`;
+                        }else
+                            systemLog("Network", "[SOCKET PING] Recieved unexpected amounts of ping.", [255, 0, 0]);
+                    }
+                }
+            });
+            currentSocket
+            socket.addEventListener("close", function(ev){
+                if (ev.reason)
+                    systemLog("Network", "[SOCKET REASON] " + ev.reason + ` (${ev.code})`, [255, 0, 0]);
+                systemLog("Network", "[SOCKET CLOSE] Server closed the Websocket connection. \"Goodbye!\"--Server", [255, 0, 0]);
+                systemLog("Network", "Type 'connect' into command bar or click 'Reconnect to the admin system'", [255, 255, 255]);
+                systemLog("Network", "For testing purposes and if a secure option isn't avaliable. Use insecure websocket.", [255, 255, 255]);
+                systemLog("Network", "To use insecure websocket type 'connectinsecure' into command bar or click 'Reconnect Insecurely'", [255, 255, 255]);
+                pingStatusText.textContent = "oof";
+                pingStatusText.parentElement.style.backgroundColor = "rgb(255, 0, 0)";
+                socket = null;
+                currentSocket = null;
+                updateButtons([]);
+                if (pinging){
+                    ping = (Date.now()-pingStart);
+                    clearInterval(pingInt);
+                    clearTimeout(pingTimeout);
+                    pinging = false;
+                }
+            });
+            socket.addEventListener("error", function(){
+                updateButtons([]);
+                systemLog("Network", "[SOCKET ERR]An error occured in Websocket.", [255, 0, 0])
+            })
+        };
+        setInterval(() => {
+            if (pinging == false && currentSocket){
+                pinging = true;
+                pingStart = Date.now();
+                currentSocket.send(JSON.stringify({
+                    Id: "Ping"
+                }));
+                pingStatusText.parentElement.style.backgroundColor = "rgb(0, 255, 0)";
+                pingTimeout = setTimeout(() => {
+                    pingStatusText.parentElement.style.backgroundColor = "rgb(255, 0, 0)";
+                    pingTimeout = setTimeout(() => {
+                        systemLog("Network", "[SOCKET ERR]Sever probably commited oopsies and died. Websocket disconnected because timeeout lol.", [255, 0, 0])
+                        if (currentSocket)
+                            currentSocket.close();
+                    }, 20000);
+                }, 1000);
+                pingInt = setInterval(() => {
+                    pingStatusText.textContent = `Ping: ${(Date.now()-pingStart)}ms`;
+                }, 100);
+            }
+        }, 1000);
+        connectToRemoteServer(true);
+        /*setInterval(() => {
+            let xhmlRequest = new XMLHttpRequest();
+            xhmlRequest.open("GET", "/getConsoleData?login=" + consoleId + "&new=" + newClient);
+            xhmlRequest.addEventListener("readystatechange", function(){
+                if (xhmlRequest.readyState == 4){
+                    if (xhmlRequest.status == 200){
+                        if (connected == false){
+                            connected = true;
+                            systemLog("Network", "Established connection!", [0, 255, 0])
+                        }
+                        let data = JSON.parse(xhmlRequest.response);
+                        for (let i = 0;i<data.NewLogs.length;i++){
+                            let v = data.NewLogs[i];
+                            systemLog(v.System, v.Message, v.Color, v.Now);
+                        }
+                        for (let i in data.AutoCorrectChanges){
+                            textReplace[i] = data.AutoCorrectChanges[i];
+                        }
+                    }else{
+                        connected = false;
+                        systemLog("Network", "Failed to connect to Jade's Server!", [255, 0, 0])
+                    }
+                }
+            })
+            xhmlRequest.send();
+            newClient = false;
+        }, 250);*/
+    </script>
+</html>

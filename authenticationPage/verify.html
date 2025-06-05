@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+        <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
+        <link rel="manifest" href="/resources/site.webmanifest">
+        <link rel="mask-icon" href="/resources/safari-pinned-tab.svg" color="#032a35">
+        <title>Verify Roblox Account</title>
+        <style>
+            body{
+                font-family: "Source Sans Pro", sans-serif;
+                background-color: rgb(20, 20, 29);
+            }
+            #UnknownUser{
+                height: 75%;
+                position: fixed;
+                right: 12.5%;
+                top: 12.5%;
+            }
+            #LeftBar{
+                width:450px;
+                background-color: rgb(29, 29, 29);
+                text-align: center;
+                color: rgb(0, 170, 255);
+                font-size: 40px;
+                padding-top: 25px;
+                height:100vh;
+                position: fixed;
+                left: 0px;
+                top: 0px;
+            }
+            #Status{
+                font-size: 30px;
+                padding-top: 25px;
+            }
+            
+            @media only screen and (max-width: 450px) {
+                #LeftBar{
+                   width:100%;
+                }
+                #VerifyFrame{
+                    bottom: 110px;
+                }
+                #Status{
+                    font-size: 25px;
+                }
+                #UnknownUser{
+                    display:none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="LeftBar">
+            Jade's Admin System
+            <div id="Status">
+                You don't have a Roblox account affiliated with your Discord account!<br><br>Go to this place:<br> <a href="https://www.roblox.com/games/5187897592/Jades-Admin-System-Verification" target="_blank" style="color:white">(Jade's Admin System Verification at Roblox)</a> <br> and enter the code ##########. Reauthenticate with Discord OAuth when you verified!
+            </div>
+        </div>
+        <img id="UnknownUser" src="/resources/UnknownUser.png">
+    </body>
+</html>
